@@ -1,27 +1,48 @@
-import data.prompt as prompt 
-from dataclasses import dataclass
+import prompt 
+
+import os
+from google import genai
+from sarvamai import SarvamAI
+from dotenv import load_dotenv
 from google.genai import types
 
+load_dotenv()
 
 
+# AI
+# Clients
+sarvam = SarvamAI(api_subscription_key = os.environ['SARVAM_API_KEY'])  
+gemini = genai.Client(api_key = os.environ.get("GOOGLE_API_KEY"),)
+ 
+## Model Configurations  
+model = "gemini-2.5-flash"  
 
-@dataclass
-class TTT:
-    model = "gemini-2.5-flash" 
-    
-    main_prompt =  prompt.instruction
-    search_stock = prompt.search_stock
-    
-    config_1 = types.GenerateContentConfig(
-        temperature = 0,
-        thinking_config = types.ThinkingConfig(thinking_budget = 0),
-        response_mime_type = "application/json",
-        system_instruction = [types.Part.from_text(text = main_prompt)]
-    )
-    config_2 = types.GenerateContentConfig(
-        temperature = 0,
-        thinking_config = types.ThinkingConfig(thinking_budget = 0),
-        response_mime_type = "application/json",
-        system_instruction = [types.Part.from_text(text = search_stock)]
-    )
-ttt = TTT()
+main_prompt =  prompt.instruction
+search_stock_prompt = prompt.search_stock
+
+main_config = types.GenerateContentConfig(
+    temperature = 0,
+    thinking_config = types.ThinkingConfig(thinking_budget = 0),
+    response_mime_type = "application/json",
+    system_instruction = [types.Part.from_text(text = main_prompt)]
+)
+search_stock_config = types.GenerateContentConfig(
+    temperature = 0,
+    thinking_config = types.ThinkingConfig(thinking_budget = 0),
+    response_mime_type = "application/json",
+    system_instruction = [types.Part.from_text(text = search_stock_prompt)]
+)
+
+# MariaDB 
+MARIADB_CONFIG = {
+    "host": os.environ["MARIADB_HOST"],
+    "port": int(os.environ["MARIADB_PORT"]),
+    "user": os.environ["MARIADB_USER"],
+    "password": os.environ["MARIADB_PASSWORD"],
+    "db": os.environ["MARIADB_DATABASE"],
+}
+TABLES = {
+    "items": os.environ["MARIADB_ITEMS_TABLE"],
+    "users_in_process": os.environ["MARIADB_USERSINPROCESS_TABLE"],
+    "categories": os.environ["MARIADB_CATEGORIES_TABLE"],
+}

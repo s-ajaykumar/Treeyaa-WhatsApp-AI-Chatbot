@@ -5,5 +5,5 @@ class MyAppError(Exception):
         self.data = data
         
     def to_dict(self):
-        data =  f"{self.error_type}:\n{type(self.data).__name__}: {self.data}"
+        data =  f"{self.error_type}: {self.data}"
         return {"type" : "error", "data" : data}
