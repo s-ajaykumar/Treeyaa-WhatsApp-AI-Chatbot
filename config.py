@@ -46,3 +46,6 @@ TABLES = {
     "users_in_process": os.environ["MARIADB_USERSINPROCESS_TABLE"],
     "categories": os.environ["MARIADB_CATEGORIES_TABLE"],
 }
+
+# Authentication
+JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]

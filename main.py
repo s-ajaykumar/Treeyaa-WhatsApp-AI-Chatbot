@@ -3,9 +3,10 @@ from core import Treeyaa
 from models.exceptions import MyAppError 
 from models.request import UserRequest, DeletePrevConv
 from models.response import error_response, success_response
+from auth.dependencies import validate_user
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 
 clients = {}
 app = FastAPI()    
@@ -13,14 +14,14 @@ app = FastAPI()
         
     
 @app.post("/user_request/") 
-async def main(request: UserRequest):
+async def main(request: UserRequest, valid_user = Depends(validate_user)):
     conn = Treeyaa(request.user_id)
     response = await conn.process(request.audio_link, request.text, request.audio)
     return success_response(response)
     
     
 @app.post("/delete_user_in_process/") 
-async def delete(request: DeletePrevConv):
+async def delete(request: DeletePrevConv, valid_user = Depends(validate_user)):
     response = await database.delete_prev_conv(request.user_id)
     return success_response(response)
     
