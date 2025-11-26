@@ -17,7 +17,7 @@ gemini = genai.Client(api_key = os.environ.get("GOOGLE_API_KEY"),)
 ## Model Configurations  
 model = "gemini-2.5-flash"  
 
-main_prompt =  prompt.instruction
+main_prompt =  prompt.instruction_test
 search_stock_prompt = prompt.search_stock
 
 main_config = types.GenerateContentConfig(

@@ -151,7 +151,7 @@ class Treeyaa:
         except Exception as e:
             raise MyAppError("TTTError", e)
                           
-    async def process(self, audio_link, text, audio):
+    async def main(self, audio_link, text, audio):
         t1 = time.time()
         self.prev_conv, prev_conv_count = await database.get_prev_conv(self.user_id)
         t2 = time.time()

@@ -16,7 +16,7 @@ app = FastAPI()
 @app.post("/user_request/") 
 async def main(request: UserRequest, valid_user = Depends(validate_user)):
     conn = Treeyaa(request.user_id)
-    response = await conn.process(request.audio_link, request.text, request.audio)
+    response = await conn.main(request.audio_link, request.text, request.audio)
     return success_response(response)
     
     
