@@ -1,20 +1,30 @@
-Latest:
+Dec 2, 2025
 
-Used sarvam api to detect all languages and convert the audio into the user language text.
-Set language code in the api to "unknown" to detect all languages.
+# Changes
 
-Prompt change:
-* If quantity type is not given or don't match with the Unit, ai will clarify with the user about the Unit of the product. Like it will ask we sell tomatoes in Kg but you asked 3pcs tomatoes.
-* Think field is used.
-* Two fields - "TranslatedName" and "Language" are added to the success response template.
-User may speak in a language and db contains items in English.
-"TranslatedName" will contain item names in the user asked language.
-"Language" will contain the user language.
-"Name" will contain the item name in db as usual.
-* While showing options for an item, item names in user language will also be shown within brackets below each item option.
-* Added two types - "clear_cart", "place_order". Whenever the user asks to clear the cart (or) place the order, it will be returned.
-* PLACE_ORDER is removed from handling rules.
-* Removed words - "fruits" and "veg" from treeyaa details.
-* While showing OutOfStock and NoMatch item names in success response, translated names will also be shown along with it. 
+## Prompt.py
 
+2 instructions present:
+a. main_instruction - end-to-end AI grocery ordering.
+b. catalogue_instruction - just catalogue ordering. No end-to-end AI ordering.
+
+## models/requests.py
+
+- 'is_catalogue_mode' parameter added to user_request model.
+
+## requirements.txt
+
+- PyJWT module added.
+
+## core.py
+
+- Prompts switches based on is_catalogue_mode.
+
+## database.py
+
+- User chat history table switches based on is_catalogue_mode.
+
+## config.py
+
+- Added 'catalogue_users_in_process' key to MariaDB config. 
 

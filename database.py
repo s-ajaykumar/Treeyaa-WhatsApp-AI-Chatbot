@@ -48,7 +48,7 @@ async def get_items_table():
     except Exception as e:
         raise MyAppError("GetItemsTableError", e)
 
-async def get_prev_conv(UserID):
+async def get_prev_conv(UserID, is_catalogue_mode):
     try:
         async with aiomysql.connect(
             host = MARIADB_CONFIG['host'],       
@@ -58,7 +58,8 @@ async def get_prev_conv(UserID):
             db = MARIADB_CONFIG['db']
         ) as conn:
             async with conn.cursor() as cursor:
-                query = f"SELECT Data FROM {TABLES['users_in_process']} WHERE UserID = %s"
+                table = TABLES['catalogue_users_in_process'] if is_catalogue_mode else TABLES['users_in_process']
+                query = f"SELECT Data FROM {table} WHERE UserID = %s"
                 await cursor.execute(query, (UserID,))
                 rows = await cursor.fetchall()
         rows = [row[0] for row in rows]
@@ -89,11 +90,12 @@ def generate_time_stamps(count):
     TimeStamps = [datetime.now(timezone.utc) for _ in range(count)]
     return TimeStamps
 
-async def update_prev_conv(UserID, contents, conversation_count):
+async def update_prev_conv(UserID, contents, conversation_count, is_catalogue_mode):
     try:
         contents = contents[conversation_count:]
         TimeStamps = generate_time_stamps(len(contents))
         records = [(UserID, TimeStamps[i], content) for i, content in enumerate(contents)]
+        table = TABLES['catalogue_users_in_process'] if is_catalogue_mode else TABLES['users_in_process']
         
         async with aiomysql.connect(
             host = MARIADB_CONFIG['host'],       
@@ -104,7 +106,7 @@ async def update_prev_conv(UserID, contents, conversation_count):
         ) as conn:
             async with conn.cursor() as cursor:
                 query = f"""
-                INSERT INTO {TABLES['users_in_process']} (UserId, TimeStamp, Data)
+                INSERT INTO {table} (UserId, TimeStamp, Data)
                 VALUES (%s, %s, %s)
                 """
                 await cursor.executemany(query, records)

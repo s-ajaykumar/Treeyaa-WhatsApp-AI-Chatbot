@@ -1,6 +1,6 @@
 import database
 from models.exceptions import MyAppError
-from config import sarvam, gemini, model, main_config, search_stock_config
+from config import sarvam, gemini, model, main_config, catalogue_config, search_stock_config
 
 from google.genai import types
 
@@ -21,6 +21,8 @@ class Treeyaa:
     def __init__(self, user_id):
         self.user_id = user_id
         self.prev_conv = []
+        self.agent = None
+        
         
     async def download_file(self, audio_link, ogg_file_path):
         try:
@@ -121,10 +123,11 @@ class Treeyaa:
         except Exception as e:
             raise MyAppError("SearchStockError", e)
            
-    async def ttt(self, gemini_inputs):
+    async def ttt(self, gemini_inputs, is_catalogue_mode = False):
         try:
             # Call AI
-            res, time_taken = await self.call_ai(gemini_inputs, main_config)
+            config = main_config if is_catalogue_mode == False else catalogue_config
+            res, time_taken = await self.call_ai(gemini_inputs, config)
             print(f"✅ ttt: {time_taken:.2f} ms")
             
             # Parse AI Json response
@@ -145,15 +148,15 @@ class Treeyaa:
                 gemini_inputs += [self.wrap_in_gemini_format(role = 'user', data = search_stock_res)]
                 
                 # Call ai with the search stock result
-                res_obj = await self.ttt(gemini_inputs)
+                res_obj = await self.ttt(gemini_inputs, is_catalogue_mode)
             return res_obj
         
         except Exception as e:
             raise MyAppError("TTTError", e)
                           
-    async def main(self, audio_link, text, audio):
+    async def main(self, audio_link, text, audio, is_catalogue_mode):
         t1 = time.time()
-        self.prev_conv, prev_conv_count = await database.get_prev_conv(self.user_id)
+        self.prev_conv, prev_conv_count = await database.get_prev_conv(self.user_id, is_catalogue_mode)
         t2 = time.time()
         print(f"✅ Fetch UsersInProcess Table: {(t2-t1)*1000:2f} ms")
         
@@ -174,7 +177,7 @@ class Treeyaa:
             gemini_inputs = [self.wrap_in_gemini_format(role = 'user', data = text)]
             self.add_content(role = "user", data = text)
             
-        res_obj = await self.ttt(gemini_inputs)
+        res_obj = await self.ttt(gemini_inputs, is_catalogue_mode)
         
         print("✅ Chat:")
         i = 0
@@ -187,7 +190,7 @@ class Treeyaa:
             i += 1
         
         # Update the conversations table
-        await database.update_prev_conv(self.user_id, self.prev_conv, prev_conv_count)
+        await database.update_prev_conv(self.user_id, self.prev_conv, prev_conv_count, is_catalogue_mode)
         
         return res_obj
     

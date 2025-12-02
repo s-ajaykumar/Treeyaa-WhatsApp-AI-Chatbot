@@ -1,19 +1,24 @@
-# 🛒 Treeyaa WhatsApp AI Chatbot
+# 🛒 About
 
-Treeyaa is an AI-powered WhatsApp chatbot that can do grocery ordering.  
-Customers can order groceries using **text or voice**
-Bot responds like a friendly store salesperson.
+- WhatsApp chatbot that orders grocery items.  
+- Customers can order groceries using **text or voice**
 
 ---
 
-## Features
+## Technical Flow
  
-- **Voice ordering** powered by speech-to-text  
-- **Natural text conversations** with AI  
-- **Real-time stock checking** (presence & availability)   
-- Converses like a store salesperson  
-- Outputs every response in **structured JSON**
-- Uses tool calling to interact with the store’s stock DB  
+1. Chat history of user - fetched from MariaDB.
+2. SarvamAI - converts user voice into text.
+3. user query = (chat history + user text)
+4. Gemini(text) - responds to user query.
+    -> Calls a tool to get stock database.
+    -> Finds whether requested grocery items exists and have sufficent stock in database.
+    -> If insufficient stock, clarifies with the user telling existing stock details.
+    -> Finally creates an order response.
+5. (user text + gemini response) - Added to chat history(MariaDB).
+6. Stock is reduced in stock database(MariaDB).
+
+- All AI responses are **JSON**
 
 ---
 
@@ -28,42 +33,12 @@ Bot responds like a friendly store salesperson.
 - **Text-to-Text (LLM):** Gemini 2.5 Flash  
 
 ### **Database**
-- **MariaDB** (for product stock, pricing, categories, user conversations etc.)
+- **MariaDB**
 
 ---
 
 ## 🤖 Prompting Strategy
 
-Used multiple prompt engineering approaches:
-
-### **1. Chain-of-thought prompting**
-### **2. Few-shot prompting** 
-### **3. Tool Calling for Stock Search**
-- AI triggers a “stock search tool”  
-- Queries the store's database for:
-  - item match  
-  - availability  
-  - selling price  
-  - unit & category  
-  - quantity validation  
-### **4. JSON-formatted Responses**
-Every response from the AI is structured as JSON:
-- detected items  
-- matched SKUs  
-- missing items  
-- stock availability  
-- total price calculations  
-- conversation intent flags  
-- error handling  
-
----
-
-## 📌 Example Use Cases
-
-- “Send me 1 kg of rice and 2 oil.”  
-- “I need snacks for kids.”  
-- Voice message: “Half kg thanga samba rice.”  
-- “Do you have multigrain noodles?”  
-- “Add poongar rice 2 kg to my order.”  
+See prompt.py
 
 ---

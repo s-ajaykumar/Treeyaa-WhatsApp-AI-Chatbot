@@ -17,7 +17,8 @@ gemini = genai.Client(api_key = os.environ.get("GOOGLE_API_KEY"),)
 ## Model Configurations  
 model = "gemini-2.5-flash"  
 
-main_prompt =  prompt.instruction_test
+main_prompt =  prompt.main_instruction
+catalogue_prompt = prompt.catalogue_instruction
 search_stock_prompt = prompt.search_stock
 
 main_config = types.GenerateContentConfig(
@@ -26,6 +27,14 @@ main_config = types.GenerateContentConfig(
     response_mime_type = "application/json",
     system_instruction = [types.Part.from_text(text = main_prompt)]
 )
+
+catalogue_config = types.GenerateContentConfig(
+    temperature = 0,
+    thinking_config = types.ThinkingConfig(thinking_budget = 0),
+    response_mime_type = "application/json",
+    system_instruction = [types.Part.from_text(text = catalogue_prompt)]
+)
+
 search_stock_config = types.GenerateContentConfig(
     temperature = 0,
     thinking_config = types.ThinkingConfig(thinking_budget = 0),
@@ -44,6 +53,7 @@ MARIADB_CONFIG = {
 TABLES = {
     "items": os.environ["MARIADB_ITEMS_TABLE"],
     "users_in_process": os.environ["MARIADB_USERSINPROCESS_TABLE"],
+    "catalogue_users_in_process" : os.environ["MARIADB_CATALOGUE_USERSINPROCESS_TABLE"],
     "categories": os.environ["MARIADB_CATEGORIES_TABLE"],
 }
 
