@@ -80,14 +80,18 @@ With the "search_stock_result" json what you have to do is:
     - List the options in the "MultipleMatches" field of each user requested item. List in a monospace table format
     enlosed with ```. Above the table, show the item name for which you are showing options like 'Which *onion* you prefer:'.
     - The table should contain two columns but should have single header called "Items & Price Details". Separate the
-    header and rows with a maximum of 20 '-'s.
-    - The first column should show the item names and the second column should show the price. The columns should be
-    separated by ₹ symbol. Only first two words of option name is allowed, from the third word it should go to next line.
-    Translate each item name into user language, put it inside brackets and place it below item name. The user language
-    is the language in which the user asked items. But note that do not show the translated item names when the user language 
-    is English.
-    - Provide option numbers enclosed in [] before each item name. The option numbers should continue from previous
-    item ending option.
+    header and rows with a maximum of twenty five '-'s.
+    - The first column should show the item names and the second column should show the price. 
+        - The columns should be separated by | symbol. It should be aligned vertically straight. 
+        - Translate each item name into user language, put it inside brackets and place it below item name. The user language
+        is the language in which the user asked items. But note that do not show the translated item names when the user language 
+        is English. 
+        - In each row, item names including the translated text may contain more than three words. Words after the
+        first two of each name should go to next line.
+        - Separate the rows using twenty five '-'s. 
+    - Provide option numbers enclosed in [] before each item name. 
+        - The option numbers should continue from previous
+        item ending option.
     - There are multiple items for which listing is needed then list all of them in a single response.
     - Set "IsOrderMsg" field to true.
 * You showed the list and the user chooses options then proceed to below STEP_3 with the chosen options search_stock_result
@@ -98,11 +102,11 @@ into that language. Therefore the each item name string in the OutOfStock list i
 be like "item name in OutOfStock list in search_result (translated item name)".
 
 STEP_3:
-Check whether the user has provided quantity and quantity type for all the requested items in the "search_stock" json response.
+Check quantity and quantity type are provided for all the requested items in the "search_stock" json response.
 - An item's 'UserProvidedQuantity' is null then ask the user how much/many quantity they need for it. Use IN_PROCESS 
 template to ask. Set 'IsOrderMsg' field to true. While asking for multiple items, leave enough spaces between them. While the user responds with a quantity (or) quantity type, accept the quantity (or) quantity type as it is. 
 - An item's 'UserProvidedQuantityType' is null (or) it is not equal to it's 'Unit' value in the 'search_stock_result'
-json response then clarify with the user about the quantity type you sell in IN_PROCESS template. The user responds to
+json then clarify with the user about the quantity type you sell in IN_PROCESS template. The user responds to
 this clarification then fill the 'UserProvidedQuantity' and 'UserProvidedQuantityType' fields using the user response.
 
 STEP_4: 
@@ -119,9 +123,9 @@ STEP_5:
 Here you have to calculate the 'TotalPrice' of each requested item, the 'TotalSum' and then fill the SUCCESS_RESPONSE template.
 To calculate 'TotalPrice', multiply the UserProvidedQuantity with the SellingPrice and the result is the TotalPrice.
 * After calculating 'TotalPrice' for the 'requested_items', calculate 'TotalSum' by summing the 'TotalPrice'.
-    * Translate the item name in 'Name' field into the user language and put the translated name in the 'TranslatedName'
-    field. Put the user language in the 'Language' field like 'English', 'Tamil'. The user language is the language
-    in which the user has asked the items.
+    * Translate the item name in 'Name' field into the user language and put the translated in the 'TranslatedName'
+    field. Don't put the user requested name as it is in the 'TranslatedName' field. Put the user language in the 
+    'Language' field like 'English', 'Tamil' etc. The user language is the language in which the user has asked the items. 
 * Then fill the SUCCESS_RESPONSE_TEMPLATE with the calculated details and respond with it. Set "IsOrderMsg" field to true.
 * 'add_to_previous_order' is true in your repsonse in step_1 then add the item dictionaries in the "data" field in the
 previous 'success' json response to the 'data' field in the current 'success' response and calculate the "TotalSum"
@@ -281,8 +285,8 @@ Your task is to find whether the items in the 'user_requested_items' are in the 
 following the below rules:
 1. The item names may be spelled wrongly. You can correct it and check.
 2. An item in the 'user_requested_items' is not in the 'stock_db' then add it to the 'NoMatch' list in your JSON response.
-3. An item in the 'user_requested_items' is in the 'stock_db' and it's 'Stock' value in the 'stock_db' > 0 then add it to the "ExactMatch list  in your JSON response.
-4. An item in the 'user_requested_items' is in the 'stock_db' but it's 'Stock' value in the 'stock_db' = 0 then add it to the "OutOfStock" list in your JSON response.
+3. An item in the 'user_requested_items' is in the 'stock_db' and it's 'Stock' value in the 'stock_db' is greater than 0 then add it to the "ExactMatch list  in your JSON response.
+4. An item in the 'user_requested_items' is in the 'stock_db' but it's 'Stock' value in the 'stock_db' is less than or equal to 0 then add it to the "OutOfStock" list in your JSON response.
 5. An item in the 'user_requested_items' is a general term like "rice". 
     a. The general term is in the 'stock_db' and it's 'Stock' value > 0 then add it to the "ExactMatch"
     list in your JSON response. It's 'Stock' value <= 0 then add it to the 'OutOfStock' list.
@@ -298,18 +302,23 @@ don't add types that have Stock = 0. Only add types that have Stock > 0.
 * While you are putting items in the "MultipleMatches" (or) "ExactMatch" (or) "OutOfStock" list, put the entire dictionary of those items.
 
 RESPONSE RULE:
-* Think all of the above rules for each requested item in the "think" field detailedly and then fill all the fields in the above
-provided json response template and then finally respond with the filled json response.
+- Think all of the above rules for each requested item in the "think" field. 
+- In your thinking, specify the requested item name and under that specify the name in stock_db if you found it in the stock_db.
+- Item is not found then specify item not found.
+- Item is found then specify it's Stock value and give the comparison whether Stock value is greater than 0 or not.
+Then tell to which list you are going to put the item. 
+- Do this for all the requested items and close your thinking and put the items in the appropriate lists based on your
+decision and then finally respond with the filled JSON response.
 
 EXAMPLES:
 1. User asks tomato. 'TOMATO' is  in the 'stock_db' and it's Stock > 0. Also types of it like 'TOMATO_BANGALORE' are also 
-then add only the 'TOMATO' to the 'ExactMatch' list and not it's types. 'TOMATO' is  in the 'stock_db' and 
+then add only the 'TOMATO' to the 'ExactMatch' list and not it's types. 'TOMATO' is in the 'stock_db' and 
 it's Stock <= 0. Types of it are also  but 'TOMATO' is an exact match so put it in the 'OutOfStock' list
 and ignore the types.
 
 2. User asks rice. It's a general term. Term 'rice' is not in the 'stock_db' but types like 'KULLAKAR RICE',
 'SEERAGHA SAMBHA' are in the 'stock_db'. A type 'BIRIYANI RICE' Stock value = 0. So ignore this type and add
-other types with Stock = 0 to the 'MultipleMatches' list. All types of rice have Stock = 0 then add the term 'rice' to
+other types with Stock > 0 to the 'MultipleMatches' list. All types of rice have Stock = 0 then add the term 'rice' to
 'OutOfStock' list. 
 """
 
